@@ -1,0 +1,146 @@
+---
+metadata:
+  title: |
+    Family Information Checker
+  short title: |
+    Style Demonstrator
+  show login: True
+---
+objects:
+  - EHNlogo: DAStaticFile.using(filename='C4_01_flinders_logo.png')
+---
+mandatory: True
+code: |
+  set_parts(logo='<img src="' + EHNlogo.url_for() + '" style="height: 50px;">')
+---
+features:
+  css: C4_01_lnf_with_comments.css
+  debug: True
+  hide standard menu: False
+---
+variable name: EHNperson_info
+use objects: True
+data:
+ -  First Name: Jennette 
+    Last name: Nelson
+    Age: 59
+    Hobbies: Looking at air bnb
+    Do you like pets?: True
+ -  First Name: Brian
+    Last name: Nelson
+    Age: 67
+    Hobbies: Reading about history
+    Do you like pets?: True
+ -  First Name: Andrew 
+    Last name: Nelson
+    Age: 46
+    Hobbies: karate
+    Do you like pets?: True
+---
+mandatory: True
+question: Family Information Checker
+subquestion: |
+  Welcome to the Family Information Checker!
+  
+  This is the information for each of your family members.
+  
+  ${ EHNcolumn_header }
+  ${ EHNdashes }
+  %for EHNitem in EHNtable_rows:
+  ${ EHNitem }
+  %endfor
+  
+  Please confirm whether each piece of information is correct.
+
+buttons:
+- Continue: continue
+- Exit: exit
+- Restart: restart
+---
+code: |
+  EHNcolumn_header = ""
+  
+  for EHNitem in EHNperson_info[0]:
+    EHNcolumn_header += EHNitem + '|'
+    
+  EHNcolumn_header = EHNcolumn_header[:-1]
+---
+code: |
+  EHNdashes = "---"
+  for item in range(len(EHNperson_info[0]) - 1):
+    EHNdashes += "|---"
+---
+code: | 
+  EHNtable_rows = []
+  
+  for EHNitem in EHNperson_info:
+      MDrow = ""
+      for EHNkey in EHNitem:
+        MDrow += str(EHNitem[EHNkey]) + '|'
+      MDrow = MDrow[:-1]
+      EHNtable_rows.append(MDrow)
+---
+variable name: EHNquestions
+use objects: True
+data:
+  - EHNquestion: Please select the correct information for Jennette
+    EHNchoices:
+      - First Name is Jennette
+      - Last Name is Nelson
+      - Age is 59
+      - Hobby is looking at air bnb
+      - Likes pets
+  - EHNquestion: Please select the correct information for Brian
+    EHNchoices:
+      - First Name is Brian
+      - Last Name is Nelson
+      - Age is 67
+      - Hobby is reading about history
+      - Likes pets
+  - EHNquestion: Please select the correct information for Andrew
+    EHNchoices:
+      - First Name is Andrew
+      - Last Name is Nelson
+      - Age is 46
+      - Hobby is karate
+      - Likes pets
+---
+mandatory: True
+question: Family Information
+subquestion: |
+  Here is your validated family information!
+    This information is displayed alongside your families confirmed information.
+  
+  ${ EHNquestion_table }
+attachment:
+  docx template file: Family_information_FINAL.docx
+  valid formats:
+   - pdf
+buttons:
+  - Exit: exit
+  - Restart: restart
+---
+table: EHNquestion_table
+rows:  EHNquestions
+columns:
+  - First Name: |
+      row_item['EHNchoices'][0]
+  - Last Name: |
+      row_item['EHNchoices'][1]
+  - Age: |
+      row_item['EHNchoices'][2]
+  - Hobbies: |
+      row_item['EHNchoices'][3]
+  - Likes pets: |
+      row_item['EHNchoices'][4]
+  
+  - Correct answers: |
+      row_item['EHNanswers'].true_values()
+---
+question: |
+  ${ EHNquestions[i]['EHNquestion'] }
+fields:
+  - no label: EHNquestions[i]['EHNanswers']
+    datatype: checkboxes
+    code: EHNquestions[i]['EHNchoices']
+---
